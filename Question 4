@@ -1,0 +1,29 @@
+!pip install yfinance==0.1.67
+!mamba install bs4==4.10.0 -y
+!pip install nbformat==4.2.0
+
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+import warnings
+# Ignore all warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+gme=yf.Ticker("GME")
+
+url="https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-PY0220EN-SkillsNetwork/labs/project/stock.html"
+html_data=requests.get(url).text
+
+soup=BeautifulSoup(html_data)
+
+gme_revenue=pd.DataFrame(columns=["Date","Revenue"])
+for row in soup.find_all("tbody")[1].find_all("tr"):
+    col=row.find_all("td")
+    date=col[0].text
+    revenue=col[1].text.replace("$","").replace(",","")
+    gme_revenue=gme_revenue.append({"Date": date, "Revenue": revenue},ignore_index=True)
+
+gme_revenue.reset_index(inplace=True)
+gme_revenue.tail(5)
+
